@@ -9,11 +9,14 @@ public class Pedido implements Comparable<Pedido>{
 	
 	private int idPedido;
 	
+	/** Quantidade máxima de produtos de um pedido */
+	private static final int MAX_PRODUTOS = 10;
+	
 	/** Porcentagem de desconto para pagamentos à vista */
 	private static final double DESCONTO_PG_A_VISTA = 0.15;
 	
-	/** Lista de produtos do pedido */
-	private Lista<Produto> produtos;
+	/** Vetor para armazenar os produtos do pedido */
+	private Produto[] produtos;
 	
 	/** Data de criação do pedido */
 	private LocalDate dataPedido;
@@ -25,13 +28,13 @@ public class Pedido implements Comparable<Pedido>{
 	private int formaDePagamento;
 	
 	/** Construtor do pedido.
-	 *  Deve criar a lista de produtos do pedido, 
+	 *  Deve criar o vetor de produtos do pedido, 
 	 *  armazenar a data, o código identificador e a forma de pagamento informados para o pedido. 
 	 */  
 	public Pedido(LocalDate dataPedido, int formaDePagamento) {
 		
 		idPedido = ultimoID++;
-		produtos = new Lista<Produto>();
+		produtos = new Produto[MAX_PRODUTOS];
 		quantProdutos = 0;
 		this.dataPedido = dataPedido;
 		this.formaDePagamento = formaDePagamento;
@@ -44,12 +47,11 @@ public class Pedido implements Comparable<Pedido>{
      */
 	public boolean incluirProduto(Produto novo) {
 		
-		if (novo == null) {
-			return false;
+		if (quantProdutos < MAX_PRODUTOS) {
+			produtos[quantProdutos++] = novo;
+			return true;
 		}
-		produtos.inserir(novo, quantProdutos);
-		quantProdutos++;
-		return true;
+		return false;
 	}
 	
 	/**
@@ -63,7 +65,7 @@ public class Pedido implements Comparable<Pedido>{
 		BigDecimal valorPedidoBD;
 		
 		for (int i = 0; i < quantProdutos; i++) {
-			valorPedido += produtos.obterElemento(i).valorDeVenda();
+			valorPedido += produtos[i].valorDeVenda();
 		}
 		
 		if (formaDePagamento == 1) {
@@ -79,7 +81,7 @@ public class Pedido implements Comparable<Pedido>{
 	
 	/**
      * Representação, em String, do pedido.
-     * Contém um cabeçalho com seu código identificador, sua data e a quantidade de produtos no pedido.
+     * Contém um cabeçalho com seu código identificador, sua data e o número de produtos no pedido.
      * Depois, em cada linha, a descrição de cada produto do pedido.
      * Ao final, mostra a forma de pagamento, o percentual de desconto (se for o caso) e o valor a ser pago pelo pedido.
      * Exemplo:
@@ -107,7 +109,9 @@ public class Pedido implements Comparable<Pedido>{
 		
 		stringPedido.append("Pedido com " + quantProdutos + " produtos.\n");
 		stringPedido.append("Produtos no pedido:\n");
-		stringPedido.append(produtos.toString() + "\n");
+		for (int i = 0; i < quantProdutos; i++ ) {
+			stringPedido.append(produtos[i].toString() + "\n");
+		}
 		
 		stringPedido.append("Pedido pago ");
 		if (formaDePagamento == 1) {
@@ -152,7 +156,7 @@ public class Pedido implements Comparable<Pedido>{
     	return quantProdutos;
     }
     
-    public Lista<Produto> getProdutos() {
+    public Produto[] getProdutos() {
     	return produtos;
     }
 }
